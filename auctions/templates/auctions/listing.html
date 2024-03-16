@@ -1,0 +1,105 @@
+{% extends "auctions/layout.html" %}
+{% load static %}
+
+{% block body %}
+    <div class="listing-details">
+        <div>
+            {% if listing.image %}
+                <img class="listing-image" src="{{ listing.image.url }}" alt="Listing Image">
+            {% else %}
+                <img class="listing-image" src="{% static 'auctions/no-image-placeholder.png' %}" alt="No Image Available">
+            {% endif %}
+        </div>
+        <div class="listing-info">
+            <div class="listing-title">
+                <h1>{{ listing.name }}</h1>
+                {% if is_creator %}
+                    <span class="remove"><a href="{% url 'delete_listing' listing.pk %}">Delete Listing</a></span>
+                {% endif %}
+            </div>
+            <p>Description: {{ listing.description }}</p>
+            <p><strong>Categories: </strong>
+                {% for category in categories %}
+                    {{ category }}
+                {% empty %}
+                    No categories.
+                {% endfor %}<br />
+            <span class="published">Published by {{ listing.created_by }} on {{ created_at|date:"F j, Y" }} ({{ created_at|timesince:now}} ago)</span></p>
+            {% if listing.active %}
+                {% if bid %}
+                    <p>Current Highest Bid: ${{ highest_bid|floatformat:2 }}{% if yours %} (it's yours).{% endif %}</p>
+                    {% if not user.is_authenticated %}
+                        <p><a href="{% url 'login' %}">Log in</a> or <a href="{% url 'register' %}">register</a> to bid more.</p>
+                    {% endif %}
+                {% else %}
+                    <p>Starting bid: ${{ listing.starting_bid }}</p>
+                    {% if user.is_authenticated %}
+                        <p>No bids yet.{% if not is_creator %} Be the first to bid a minimum of ${{ listing.starting_bid }}.{% endif %}</p>
+                    {% else %}
+                        <p>No bids yet. <a href="{% url 'login' %}">Log in</a> or <a href="{% url 'register' %}">register</a> to start bidding.</p>
+                    {% endif %}
+                {% endif %}
+                {% if user.is_authenticated and not is_creator %}
+                    {% if error_message %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ error_message }}
+                        </div>
+                    {% endif %}
+                    {% if not yours %}
+                        <form action="{% url 'place_bid' listing.pk %}" method="post">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label for="bid_amount">Place a bid:</label>
+                                <input type="number" step="0.01" name="bid_amount" id="bid_amount" class="form-control" value="{{ bid_form.initial.bid_amount|floatformat:2 }}" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Place Bid</button>
+                        </form>
+                    {% endif %}
+                    {% if in_watchlist %}
+                        <p>Item's on your watchlist. <a href="{% url 'remove_from_watchlist' listing.pk %}?referer=listing">Remove</a></p>
+                    {% else %}
+                        <a href="{% url 'add_to_watchlist' listing.pk %}">Add to Watchlist</a>
+                    {% endif %}
+                {% elif user.is_authenticated and bids %}
+                    <h4>Bidding history:</h4>
+                    <ul>
+                    {% for bid in bids %}
+                        <li>${{ bid.amount }} bid by {{ bid.user }}</li>
+                    {% endfor %}
+                    </ul>
+                    <form method="POST" action="{% url 'close_auction' listing.pk %}">
+                        {% csrf_token %}
+                        <button type="submit">Close Auction</button>
+                    </form>
+                {% elif user.is_authenticated %}
+                    <form method="POST" action="{% url 'close_auction' listing.pk %}">
+                        {% csrf_token %}
+                        <button type="submit">Close Auction</button>
+                    </form>
+                {% endif %}
+            {% else %}
+                    {% if yours %}
+                        <strong>Congratulations!</strong> You won the auction with a bid of {{ highest_bid|floatformat:2 }}.
+                    {% elif is_creator %}
+                        The auction was won by {{ listing.get_winner }} who bid {{ highest_bid|floatformat:2 }}.
+                    {% endif %}
+            {% endif %}
+        </div>
+    </div>
+    <h4 class="comment">Comments</h4>
+    {% if user.is_authenticated %}
+        <form method="post" action="{% url 'leave_comment' listing.pk %}">
+            {% csrf_token %}
+            {{ comment_form.as_p }}
+            <button type="submit">Submit Comment</button>
+        </form>
+    {% else %}
+        <p>Please <a href="{% url 'login' %}">log in</a> to leave a comment.</p>
+    {% endif %}
+    {% for comment in listing.listing_comments.all %}
+        <p><strong>{{ comment.created_by.username }}:</strong> {{ comment.content }}<br />
+        <span class="published">Posted on: {{ comment.created_at|date:"F d, Y" }}</span></p>
+    {% empty %}
+            No comments yet. Be the first to leave one.
+    {% endfor %}
+{% endblock %}

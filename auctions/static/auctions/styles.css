@@ -1,0 +1,67 @@
+body {
+    padding: 10px;
+}
+
+ul li {
+  list-style-type: none;
+}
+
+.listing-title, .watchlist-nav-item {
+  display: flex;
+  align-items: center;
+}
+
+.listing-details {
+  display: flex;
+  margin-bottom: 10px;
+}
+
+.watchlist-counter {
+  width: 20px;
+  height: 20px;
+  margin-left: -13px;
+  text-align: center;
+  background-color: gray;
+  color: white;
+  border-radius: 13px;
+  font-size: 13px;
+}
+
+.listing-title h1, h3, h4 {
+    margin: 0 5px 0 0;
+  }
+
+.listing-image {
+  max-width: 400px;
+  max-height: 400px;
+  margin-right: 20px;
+}
+
+.listing-thumbnail {
+  max-width: 150px;
+  margin-right: 10px;
+}
+
+  .new, .remove a {
+    color: red;
+    font-size: 0.8em;
+  }
+
+  .num-bids {
+    margin-right: 10px;
+  }
+
+  .published {
+    font-size: 0.8em;
+  }
+
+  label[for="id_content"] {
+    display: none;
+}
+
+.comment {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  border-top: 1px solid rgba(0,0,0,.1);
+  padding-top: 20px;
+}

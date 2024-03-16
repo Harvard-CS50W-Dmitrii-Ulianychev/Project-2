@@ -1,0 +1,8 @@
+{% extends "auctions/layout.html" %}
+{% block body %}
+    <ol>
+    {% for  listing in listings %}
+        <li><h4><a href="{% url 'listing' listing.pk %}">{{ listing.name }}</a></h4><span class="published"> Added on {{ listing.created_at|date:"F j, Y" }} by {{ listing.created_by }}</span></li>
+    {% endfor %}
+    </ol>
+{% endblock%}

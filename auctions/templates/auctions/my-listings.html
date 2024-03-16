@@ -1,0 +1,38 @@
+{% extends "auctions/layout.html" %}
+{% load static %}
+
+{% block body %}
+    <h1>My Listings</h1>
+    <ul>
+    {% for listing in my_listings %}
+        <li class="listings">
+            <div class="listing-details">
+                {% if listing.image %}
+                    <a href="{% url 'listing' listing.pk %}"><img class="listing-thumbnail" src="{{ listing.image.url }}" alt="Listing Thumbnail Image"></a>
+                {% else %}
+                    <a href="{% url 'listing' listing.pk %}"><img class="listing-thumbnail" src="{% static 'auctions/no-image-placeholder.png' %}" alt="No Image Available"></a>
+                {% endif %}
+                <div>
+                    <div class="listing-title">
+                        <h3><a href="{% url 'listing' listing.pk %}">{{ listing.name }}</a></h3>
+                        <span class="num-bids">
+                            ({{ listing.num_bids }} bid{% if listing.num_bids != 1 %}s{% endif %})
+                        </span>
+                        <span class="remove">
+                            <a href="{% url 'delete_listing' listing.pk %}">Delete listing</a>
+                        </span>
+                    </div>
+                    <p><strong>Description:</strong> {{ listing.description }}<br />
+                    {% if listing.highest_bid %}
+                        <strong>The Highest Bid:</strong> ${{listing.highest_bid|floatformat:2}}</p>
+                    {% else %}
+                        <strong>Starting Bid:</strong> ${{listing.starting_bid}}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </li>
+    {% empty %}
+        <li>You haven't published any listings.</li>
+    {% endfor %}
+    </ul>
+{% endblock %}

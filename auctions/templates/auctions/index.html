@@ -1,0 +1,34 @@
+{% extends "auctions/layout.html" %}
+{% load static %}
+
+{% block body %}
+    <h2>Active Listings</h2>
+        <ul>
+            {% for listing in listings %}
+                {% if listing.active %}
+                    <li>
+                        <div class="listing-details">
+                            {% if listing.image %}
+                                <a href="{% url 'listing' listing.pk %}"><img class="listing-thumbnail" src="{{ listing.image.url }}" alt="Listing Thumbnail Image"></a>
+                            {% else %}
+                                <a href="{% url 'listing' listing.pk %}"><img class="listing-thumbnail" src="{% static 'auctions/no-image-placeholder.png' %}" alt="No Image Available"></a>
+                            {% endif %}
+                            <div>
+                                <div class="listing-title"><h3><a href="{% url 'listing' listing.pk %}">{{ listing.name }}</a></h3>{% if listing.highest_bid %}<span>({{ listing.num_bids }} bid{% if listing.num_bids > 1 %}s{% endif %})</span>{% else %}<span class="new">NEW</span>{% endif %}</div>
+                                <p><strong>Description:</strong> {{ listing.description|truncatewords:20 }}</br>
+                                {% if not listing.highest_bid %}
+                                    <strong>Starting Bid:</strong> ${{ listing.starting_bid}}
+                                {% else %}
+                                    <strong>Current Highest Bid:</strong> ${{ listing.highest_bid|floatformat:2}}
+                                {% endif %}
+                                </br /><span class="published">Published {{ listing.created_at|timesince:now}} ago</span>
+                                </p>
+                            </div>
+                        </div>
+                    </li>
+                {% endif %}
+            {% empty %}
+                <li>No listings yet.{% if user.is_authenticated %} Go to "<a href="{% url 'create_listing' %}">Create Listing</a>" to add one.{% endif %}</li>
+            {% endfor %}
+        </ul>
+{% endblock %}
